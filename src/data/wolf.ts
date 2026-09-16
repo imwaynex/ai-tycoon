@@ -34,5 +34,4 @@ export const PLANNED_DURATION_SEC = 300;
 export const DEMO_WAIT_MS_MIN = 2000;
 export const DEMO_WAIT_MS_MAX = 4000;
 export const BATTLE_WALL_MAX = 20;
-export const BATTLE_WALL_MOCK_MIN = 5;
 export const MISSION_STAKE = 10_000;

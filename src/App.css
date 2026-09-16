@@ -324,6 +324,99 @@
   grid-column: 1 / -1;
 }
 
+/* 兩次對照 — 戰報附讀，不是成長中心 */
+.growth-compare {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+}
+
+.growth-compare h3 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.growth-compare h4 {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.04em;
+}
+
+.growth-compare__pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.growth-compare__pair article {
+  background: #0f1520;
+  border: 1px solid #1e2838;
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+.growth-compare__pair dl {
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.growth-compare__pair dt {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.growth-compare__pair dd {
+  margin: 0.1rem 0 0;
+  font-weight: 700;
+}
+
+.growth-compare__deltas ul {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.growth-compare__deltas li {
+  background: #0f1520;
+  border: 1px solid #1e2838;
+  border-radius: 10px;
+  padding: 0.65rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.growth-compare__deltas span {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.growth-compare__note {
+  margin: 0.55rem 0 0;
+  color: var(--pos);
+  font-size: 0.85rem;
+}
+
+.battle-wall .growth-compare {
+  margin-bottom: 0.85rem;
+  background: #101826;
+}
+
+@media (max-width: 520px) {
+  .growth-compare__pair,
+  .growth-compare__deltas ul {
+    grid-template-columns: 1fr;
+  }
+}
+
 .audit-hint {
   color: var(--muted);
   font-size: 0.85rem;

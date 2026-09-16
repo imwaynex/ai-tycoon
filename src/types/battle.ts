@@ -67,6 +67,32 @@ export type SpeakableFields = Pick<
 
 export type ScreenId = 'home' | 'in_progress' | 'return';
 
+export type GrowthVerdict = 'better' | 'worse' | 'flat' | 'none';
+
+/** 同一 agent 最近兩筆正式牆對照 — 對齊成長薄片實作基準 §3 */
+export interface GrowthCompare {
+  compare_id: string;
+  agent_id: string;
+  empire_id: string;
+  prev_result_id: string | null;
+  curr_result_id: string | null;
+  prev_realized_pnl: number | null;
+  prev_return_pct: number | null;
+  prev_max_drawdown: number | null;
+  prev_trade_count: number | null;
+  curr_realized_pnl: number | null;
+  curr_return_pct: number | null;
+  curr_max_drawdown: number | null;
+  curr_trade_count: number | null;
+  delta_realized_pnl: number | null;
+  delta_return_pct: number | null;
+  delta_max_drawdown: number | null;
+  delta_trade_count: number | null;
+  /** better/worse 僅依 delta_return_pct；僅一筆或未對照＝none */
+  verdict: GrowthVerdict;
+  created_at: string;
+}
+
 export interface Agent {
   agent_id: string;
   name: string;
