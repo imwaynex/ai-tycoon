@@ -5,10 +5,9 @@ import type { BattleResult, ExpeditionState } from '../types/battle';
 import { BattleWall } from '../components/BattleWall';
 import { ReturnScreen } from '../components/screens/ReturnScreen';
 import { HomeScreen } from '../components/screens/HomeScreen';
-import { createInitialState, loadBattleWall } from '../store/expeditionStore';
+import { BATTLE_WALL_STORAGE_KEY, createInitialState, loadBattleWall } from '../store/expeditionStore';
 import { EMPIRE_ID, WOLF_PERSONA } from '../data/wolf';
 import { GROWTH_COPY } from '../data/copySlots';
-import { buildMockHistory } from '../engine/mockEngine';
 
 function result(
   over: Partial<BattleResult> & Pick<BattleResult, 'result_id'>,
@@ -77,12 +76,88 @@ describe('empty wall G4', () => {
     expect(screen.getByLabelText('模擬盤')).toBeTruthy();
   });
 
-  it('loadBattleWall strips preseeded mock history from storage', () => {
+  it('createInitialState from empty storage renders G4 and never inserts hist_seed_*', () => {
+    expect(loadBattleWall()).toEqual([]);
+    const state = createInitialState(true);
+    expect(state.battleWall).toEqual([]);
+    expect(window.localStorage.getItem(BATTLE_WALL_STORAGE_KEY)).toBeNull();
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key = window.localStorage.key(i);
+      const value = key ? window.localStorage.getItem(key) : null;
+      expect(value ?? '').not.toContain('hist_seed_');
+    }
+
+    render(
+      <HomeScreen
+        state={state}
+        onAcceptWolf={() => {}}
+        onDispatch={() => {}}
+        onToggleForceFail={() => {}}
+      />,
+    );
+    expect(screen.getByText(/戰績牆還是空的/)).toBeTruthy();
+    expect(screen.getByText(/派 WOLF 出去，才有故事可截/)).toBeTruthy();
+    expect(screen.queryByLabelText('兩次對照')).toBeNull();
+  });
+
+  it('ignores old ai-tycoon-battle-wall seeds and does not migrate them', () => {
+    const seeds = [
+      result({
+        result_id: 'seed_a',
+        sandbox_run_id: 'hist_seed_alpha_01',
+        mission_id: 'msn_hist_1',
+      }),
+      result({
+        result_id: 'seed_b',
+        sandbox_run_id: 'hist_seed_bravo_02',
+        mission_id: 'msn_hist_2',
+      }),
+    ];
+    window.localStorage.setItem('ai-tycoon-battle-wall', JSON.stringify(seeds));
+    expect(loadBattleWall()).toEqual([]);
+    expect(createInitialState(true).battleWall).toEqual([]);
+    expect(window.localStorage.getItem(BATTLE_WALL_STORAGE_KEY)).toBeNull();
+    expect(window.localStorage.getItem('ai-tycoon-battle-wall')).toBe(
+      JSON.stringify(seeds),
+    );
+  });
+
+  it('strips hist_seed_* from v2 storage without treating them as real results', () => {
     window.localStorage.setItem(
-      'ai-tycoon-battle-wall',
-      JSON.stringify(buildMockHistory(5)),
+      BATTLE_WALL_STORAGE_KEY,
+      JSON.stringify([
+        result({
+          result_id: 'seed_a',
+          sandbox_run_id: 'hist_seed_alpha_01',
+          mission_id: 'msn_hist_1',
+        }),
+      ]),
     );
     expect(loadBattleWall()).toEqual([]);
+  });
+
+  it('HomeScreen shows G4 and no compare when wall is only preseeded hist_seed_*', () => {
+    render(
+      <HomeScreen
+        state={homeState([
+          result({
+            result_id: 'seed_a',
+            sandbox_run_id: 'hist_seed_alpha_01',
+            mission_id: 'msn_hist_1',
+          }),
+          result({
+            result_id: 'seed_b',
+            sandbox_run_id: 'hist_seed_bravo_02',
+            mission_id: 'msn_hist_2',
+          }),
+        ])}
+        onAcceptWolf={() => {}}
+        onDispatch={() => {}}
+        onToggleForceFail={() => {}}
+      />,
+    );
+    expect(screen.getByText(/戰績牆還是空的/)).toBeTruthy();
+    expect(screen.queryByLabelText('兩次對照')).toBeNull();
   });
 });
 
@@ -117,6 +192,30 @@ describe('G0 one result', () => {
     expect(screen.queryByLabelText('兩次對照')).toBeNull();
     expect(screen.getByRole('button', { name: '再出征' })).toBeTruthy();
     expect(screen.getByText(/WOLF 只有一筆戰績/)).toBeTruthy();
+  });
+
+  it('return screen hides compare when the only wall entries are hist_seed_*', () => {
+    render(
+      <ReturnScreen
+        state={returnState([
+          result({
+            result_id: 'seed_a',
+            sandbox_run_id: 'hist_seed_alpha_01',
+            mission_id: 'msn_hist_1',
+            settled_at: '2026-09-15T01:00:00.000Z',
+          }),
+          result({
+            result_id: 'seed_b',
+            sandbox_run_id: 'hist_seed_bravo_02',
+            mission_id: 'msn_hist_2',
+            settled_at: '2026-09-15T02:00:00.000Z',
+          }),
+        ])}
+        onRedispatch={() => {}}
+      />,
+    );
+    expect(screen.queryByLabelText('兩次對照')).toBeNull();
+    expect(screen.getByText(/戰績牆還是空的/)).toBeTruthy();
   });
 });
 

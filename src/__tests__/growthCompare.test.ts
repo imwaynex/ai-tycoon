@@ -11,11 +11,11 @@ import {
   createInitialState,
   dispatch,
   goHomeForRedispatch,
+  loadBattleWall,
   settle,
 } from '../store/expeditionStore';
 import { EMPIRE_ID, WOLF_PERSONA } from '../data/wolf';
 import { COPY, GROWTH_COPY } from '../data/copySlots';
-import { buildMockHistory } from '../engine/mockEngine';
 
 function baseResult(over: Partial<BattleResult> & Pick<BattleResult, 'result_id'>): BattleResult {
   return {
@@ -46,15 +46,31 @@ function baseResult(over: Partial<BattleResult> & Pick<BattleResult, 'result_id'
 }
 
 describe('empty wall — no preseeded mock', () => {
-  it('createInitialState starts with zero settled results', () => {
+  it('createInitialState / loadBattleWall with empty storage → []', () => {
+    expect(loadBattleWall()).toEqual([]);
     const state = createInitialState(true);
     expect(state.battleWall).toEqual([]);
+    expect(
+      state.battleWall.some((r) => r.sandbox_run_id?.startsWith('hist_seed_')),
+    ).toBe(false);
     expect(buildGrowthCompare(state.battleWall).verdict).toBe('none');
   });
 
-  it('buildMockHistory seeds are marked preseeded and never become prev/curr', () => {
-    const hist = buildMockHistory(5);
-    expect(hist.length).toBeGreaterThanOrEqual(5);
+  it('hist_seed_* records never become prev/curr', () => {
+    const hist = [
+      baseResult({
+        result_id: 'seed_a',
+        sandbox_run_id: 'hist_seed_alpha_01',
+        mission_id: 'msn_hist_1',
+        settled_at: '2026-09-14T10:00:00.000Z',
+      }),
+      baseResult({
+        result_id: 'seed_b',
+        sandbox_run_id: 'hist_seed_bravo_02',
+        mission_id: 'msn_hist_2',
+        settled_at: '2026-09-14T11:00:00.000Z',
+      }),
+    ];
     expect(hist.every(isPreseededMock)).toBe(true);
     expect(formalWallForAgent(hist)).toEqual([]);
     expect(buildGrowthCompare(hist).verdict).toBe('none');

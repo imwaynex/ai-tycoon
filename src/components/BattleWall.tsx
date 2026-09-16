@@ -1,7 +1,7 @@
 import type { BattleResult } from '../types/battle';
 import { COPY, GROWTH_COPY, formatPnl, formatPct, formatStatus } from '../data/copySlots';
 import { EMPIRE_ID, WOLF_PERSONA } from '../data/wolf';
-import { buildGrowthCompare } from '../engine/growthCompare';
+import { buildGrowthCompare, isPreseededMock } from '../engine/growthCompare';
 import { GrowthComparePanel } from './GrowthComparePanel';
 
 export function BattleWall({
@@ -12,7 +12,10 @@ export function BattleWall({
   showCompare?: boolean;
 }) {
   const wolfWall = wall.filter(
-    (r) => r.agent_id === WOLF_PERSONA.agent_id && r.empire_id === EMPIRE_ID,
+    (r) =>
+      r.agent_id === WOLF_PERSONA.agent_id &&
+      r.empire_id === EMPIRE_ID &&
+      !isPreseededMock(r),
   );
   const compare = buildGrowthCompare(wolfWall);
 

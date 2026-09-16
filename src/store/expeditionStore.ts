@@ -28,7 +28,8 @@ import {
   settleMission,
 } from '../engine/mockEngine';
 
-const STORAGE_KEY = 'ai-tycoon-battle-wall';
+/** v2 ignores any old `ai-tycoon-battle-wall` mock seeds; do not migrate. */
+export const BATTLE_WALL_STORAGE_KEY = 'ai-tycoon-battle-wall-v2';
 const FORCE_FAIL_KEY = 'ai-tycoon-force-fail';
 
 function hasLocalStorage(): boolean {
@@ -42,15 +43,11 @@ function hasLocalStorage(): boolean {
 export function loadBattleWall(): BattleResult[] {
   try {
     if (!hasLocalStorage()) return [];
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(BATTLE_WALL_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as BattleResult[];
     if (!Array.isArray(parsed) || parsed.length === 0) return [];
-    const real = parsed.filter((r) => r && r.result_id && !isPreseededMock(r));
-    if (real.length !== parsed.length) {
-      saveBattleWall(real);
-    }
-    return real;
+    return parsed.filter((r) => r && r.result_id && !isPreseededMock(r));
   } catch {
     return [];
   }
@@ -59,7 +56,10 @@ export function loadBattleWall(): BattleResult[] {
 export function saveBattleWall(wall: BattleResult[]): void {
   try {
     if (!hasLocalStorage()) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(wall.slice(0, BATTLE_WALL_MAX)));
+    localStorage.setItem(
+      BATTLE_WALL_STORAGE_KEY,
+      JSON.stringify(wall.slice(0, BATTLE_WALL_MAX)),
+    );
   } catch {
     /* ignore quota */
   }
