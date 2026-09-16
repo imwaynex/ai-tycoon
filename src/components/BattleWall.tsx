@@ -1,8 +1,22 @@
 import type { BattleResult } from '../types/battle';
-import { COPY, formatPnl, formatPct, formatStatus } from '../data/copySlots';
+import { COPY, GROWTH_COPY, formatPnl, formatPct, formatStatus } from '../data/copySlots';
+import { EMPIRE_ID, WOLF_PERSONA } from '../data/wolf';
+import { buildGrowthCompare } from '../engine/growthCompare';
+import { GrowthComparePanel } from './GrowthComparePanel';
 
-export function BattleWall({ wall }: { wall: BattleResult[] }) {
-  if (wall.length === 0) {
+export function BattleWall({
+  wall,
+  showCompare = true,
+}: {
+  wall: BattleResult[];
+  showCompare?: boolean;
+}) {
+  const wolfWall = wall.filter(
+    (r) => r.agent_id === WOLF_PERSONA.agent_id && r.empire_id === EMPIRE_ID,
+  );
+  const compare = buildGrowthCompare(wolfWall);
+
+  if (wolfWall.length === 0) {
     return (
       <section className="battle-wall" aria-label="戰績牆">
         <h3>戰績牆</h3>
@@ -13,9 +27,15 @@ export function BattleWall({ wall }: { wall: BattleResult[] }) {
 
   return (
     <section className="battle-wall" aria-label="戰績牆">
-      <h3>戰績牆 · 最近 {wall.length} 筆</h3>
+      <h3>戰績牆 · 最近 {wolfWall.length} 筆</h3>
+      {wolfWall.length === 1 && (
+        <p className="copy-block">{GROWTH_COPY.g0}</p>
+      )}
+      {showCompare && compare.verdict !== 'none' && (
+        <GrowthComparePanel compare={compare} />
+      )}
       <ul className="battle-wall__list">
-        {wall.map((r) => (
+        {wolfWall.map((r) => (
           <li key={r.result_id} className="battle-wall__item">
             <div className="battle-wall__row">
               <time dateTime={r.settled_at}>

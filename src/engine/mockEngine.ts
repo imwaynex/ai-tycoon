@@ -222,7 +222,10 @@ export function newMissionId(): string {
   return `msn_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
 }
 
-/** 預置歷史戰績（≥5），供成長薄片／牆演示 */
+/**
+ * 測試用：組出可重放的 BattleResult。
+ * 正式牆禁止用此預置當成長對照原料。
+ */
 export function buildMockHistory(count = 5): BattleResult[] {
   const seeds = [
     'hist_seed_alpha_01',

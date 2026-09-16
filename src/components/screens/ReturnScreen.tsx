@@ -2,12 +2,15 @@ import type { ExpeditionState } from '../../types/battle';
 import {
   COPY,
   formatDuration,
+  formatDrawdown,
   formatPct,
   formatPnl,
   formatStatus,
 } from '../../data/copySlots';
+import { buildGrowthCompare } from '../../engine/growthCompare';
 import { SimulationBadge } from '../SimulationBadge';
 import { BattleWall } from '../BattleWall';
+import { GrowthComparePanel } from '../GrowthComparePanel';
 
 interface Props {
   state: ExpeditionState;
@@ -30,6 +33,8 @@ export function ReturnScreen({ state, onRedispatch }: Props) {
   }
 
   const isOk = r.status === 'completed';
+  const compare = buildGrowthCompare(state.battleWall);
+  const showCompare = compare.verdict !== 'none';
 
   return (
     <div className="screen screen--return">
@@ -42,7 +47,7 @@ export function ReturnScreen({ state, onRedispatch }: Props) {
             ? COPY.returnSuccess({
                 realized_pnl: formatPnl(r.realized_pnl),
                 return_pct: formatPct(r.return_pct),
-                max_drawdown: formatPct(-Math.abs(r.max_drawdown)),
+                max_drawdown: formatDrawdown(r.max_drawdown),
                 trade_count: r.trade_count,
                 actual_duration_sec: formatDuration(r.actual_duration_sec),
               })
@@ -73,7 +78,7 @@ export function ReturnScreen({ state, onRedispatch }: Props) {
         </div>
         <div>
           <span className="label">max_drawdown</span>
-          <strong>{formatPct(-Math.abs(r.max_drawdown))}</strong>
+          <strong>{formatDrawdown(r.max_drawdown)}</strong>
         </div>
         <div>
           <span className="label">trade_count</span>
@@ -91,11 +96,17 @@ export function ReturnScreen({ state, onRedispatch }: Props) {
         )}
       </section>
 
-      <button type="button" className="btn btn--primary" onClick={onRedispatch}>
-        再出征
-      </button>
+      {showCompare && (
+        <GrowthComparePanel compare={compare} onRedispatch={onRedispatch} />
+      )}
 
-      <BattleWall wall={state.battleWall} />
+      {!showCompare && (
+        <button type="button" className="btn btn--primary" onClick={onRedispatch}>
+          再出征
+        </button>
+      )}
+
+      <BattleWall wall={state.battleWall} showCompare={false} />
     </div>
   );
 }

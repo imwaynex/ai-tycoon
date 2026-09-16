@@ -13,7 +13,6 @@ import type {
 } from '../types/battle';
 import {
   BATTLE_WALL_MAX,
-  BATTLE_WALL_MOCK_MIN,
   DEMO_WAIT_MS_MAX,
   DEMO_WAIT_MS_MIN,
   EMPIRE_ID,
@@ -21,8 +20,8 @@ import {
   PLANNED_DURATION_SEC,
   createWolfAgent,
 } from '../data/wolf';
+import { isPreseededMock } from '../engine/growthCompare';
 import {
-  buildMockHistory,
   newMissionId,
   newSandboxRunId,
   replayConsistent,
@@ -42,22 +41,18 @@ function hasLocalStorage(): boolean {
 
 export function loadBattleWall(): BattleResult[] {
   try {
-    if (!hasLocalStorage()) return buildMockHistory(BATTLE_WALL_MOCK_MIN);
+    if (!hasLocalStorage()) return [];
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      const seeded = buildMockHistory(BATTLE_WALL_MOCK_MIN);
-      saveBattleWall(seeded);
-      return seeded;
-    }
+    if (!raw) return [];
     const parsed = JSON.parse(raw) as BattleResult[];
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      const seeded = buildMockHistory(BATTLE_WALL_MOCK_MIN);
-      saveBattleWall(seeded);
-      return seeded;
+    if (!Array.isArray(parsed) || parsed.length === 0) return [];
+    const real = parsed.filter((r) => r && r.result_id && !isPreseededMock(r));
+    if (real.length !== parsed.length) {
+      saveBattleWall(real);
     }
-    return parsed;
+    return real;
   } catch {
-    return buildMockHistory(BATTLE_WALL_MOCK_MIN);
+    return [];
   }
 }
 

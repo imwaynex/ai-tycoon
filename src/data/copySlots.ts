@@ -38,11 +38,51 @@ realized_pnl ${p.realized_pnl} · return_pct ${p.return_pct} · max_drawdown ${p
 status ${p.status} · breach_code ${p.breach_code}。
 這次沒帶回可進帳的戰果——規則守住了。`,
 
-  /** ⑥ 尚無戰績 */
+  /** ⑥ 尚無戰績＝G4 */
   emptyWall: `戰績牆還是空的。
 派 WOLF 出去，才有故事可截。`,
 
   auditHint: '本戰果可重播／可稽核',
+} as const;
+
+/** G0–G4 — 對齊 文案槽-成長對照-定稿.md；數字僅占位 */
+export const GROWTH_COPY = {
+  /** G0｜僅一筆戰績 */
+  g0: `WOLF 只有一筆戰績。
+再派一次，才看得出帝國在變強還是變弱。`,
+
+  /** G1｜兩次對照（主槽） */
+  g1: (p: {
+    prev_realized_pnl: string;
+    prev_return_pct: string;
+    prev_max_drawdown: string;
+    realized_pnl: string;
+    return_pct: string;
+    max_drawdown: string;
+    delta_realized_pnl: string;
+    delta_return_pct: string;
+    delta_max_drawdown: string;
+  }) =>
+    `同一隻 WOLF，兩次出征。
+上次：realized_pnl ${p.prev_realized_pnl} · return_pct ${p.prev_return_pct} · max_drawdown ${p.prev_max_drawdown}
+這次：realized_pnl ${p.realized_pnl} · return_pct ${p.return_pct} · max_drawdown ${p.max_drawdown}
+差在：pnl ${p.delta_realized_pnl} · 報酬 ${p.delta_return_pct} · 回撤 ${p.delta_max_drawdown}。
+成長看戰績，不看經驗值。`,
+
+  /** G2｜這次更好（須同時顯示數字） */
+  g2: `這次比上次 Sharp。
+差在數字上——再派，讓優勢繼續累積。`,
+
+  /** G3｜這次更差（須同時顯示數字） */
+  g3: `這次沒贏過上次。
+差在數字上——再派，才有下一次翻盤。`,
+
+  /** G4｜空牆（同六槽⑥） */
+  g4: COPY.emptyWall,
+
+  drawdownConverged: '回撤收斂',
+  compareTitle: '同一隻 WOLF · 兩次出征',
+  redispatch: '再出征',
 } as const;
 
 export const REJECT_REASON_ZH: Record<string, string> = {
@@ -60,6 +100,11 @@ export function formatPnl(n: number): string {
 export function formatPct(n: number): string {
   const sign = n > 0 ? '+' : '';
   return `${sign}${n.toFixed(2)}%`;
+}
+
+/** 回撤以負向風險顯示，與歸來六欄一致 */
+export function formatDrawdown(n: number): string {
+  return formatPct(-Math.abs(n));
 }
 
 export function formatDuration(sec: number): string {
