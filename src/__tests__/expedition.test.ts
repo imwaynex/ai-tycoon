@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import type { ExpeditionState, Mission } from '../types/battle';
 import {
   assertBattleResultShape,
-  buildMockHistory,
   deriveMetricsFromRunId,
   deriveOutcomeFromRunId,
   newMissionId,
@@ -149,17 +148,6 @@ describe('BattleResult required fields', () => {
     expect(result.status).toBe('failed_risk_breach');
     expect(result.breach_code).toBeTruthy();
     expect(assertBattleResultShape(result)).toEqual([]);
-  });
-
-  it('mock history has at least 5 consistent entries', () => {
-    const hist = buildMockHistory(5);
-    expect(hist.length).toBeGreaterThanOrEqual(5);
-    for (const r of hist) {
-      expect(assertBattleResultShape(r)).toEqual([]);
-      expect(
-        replayConsistent(r.sandbox_run_id, r.realized_pnl, r.return_pct),
-      ).toBe(true);
-    }
   });
 });
 

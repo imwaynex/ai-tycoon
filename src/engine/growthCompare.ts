@@ -7,10 +7,9 @@ import type { BattleResult, GrowthCompare, GrowthVerdict } from '../types/battle
 import { EMPIRE_ID, WOLF_PERSONA } from '../data/wolf';
 
 export function isPreseededMock(r: BattleResult): boolean {
-  return (
-    r.sandbox_run_id.startsWith('hist_seed_') ||
-    r.mission_id.startsWith('msn_hist_')
-  );
+  const runId = r?.sandbox_run_id ?? '';
+  const missionId = r?.mission_id ?? '';
+  return runId.startsWith('hist_seed_') || missionId.startsWith('msn_hist_');
 }
 
 /** 本帝國、該 agent、可進正式牆的紀錄；settled_at 新→舊 */

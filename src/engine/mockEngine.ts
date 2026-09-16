@@ -14,7 +14,6 @@ import type {
 } from '../types/battle';
 import {
   EMPIRE_ID,
-  PLANNED_DURATION_SEC,
   WOLF_PERSONA,
 } from '../data/wolf';
 
@@ -220,50 +219,6 @@ export function newSandboxRunId(seedExtra = ''): string {
 
 export function newMissionId(): string {
   return `msn_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
-}
-
-/**
- * 測試用：組出可重放的 BattleResult。
- * 正式牆禁止用此預置當成長對照原料。
- */
-export function buildMockHistory(count = 5): BattleResult[] {
-  const seeds = [
-    'hist_seed_alpha_01',
-    'hist_seed_bravo_02',
-    'hist_seed_charlie_03',
-    'hist_seed_delta_04',
-    'hist_seed_echo_05',
-    'hist_seed_foxtrot_06',
-  ];
-  const results: BattleResult[] = [];
-  const base = Date.parse('2026-09-14T10:00:00.000Z');
-
-  for (let i = 0; i < Math.min(count, seeds.length); i++) {
-    const sandbox_run_id = seeds[i];
-    const mission: Mission = {
-      mission_id: `msn_hist_${i + 1}`,
-      agent_id: WOLF_PERSONA.agent_id,
-      stake: STAKE,
-      planned_duration_sec: PLANNED_DURATION_SEC,
-      sandbox_run_id,
-      started_at: new Date(base + i * 3600_000).toISOString(),
-    };
-    const settled = settleMission(mission, {
-      forceStatus: 'completed',
-      demoElapsedSec: PLANNED_DURATION_SEC,
-      now: new Date(base + i * 3600_000 + PLANNED_DURATION_SEC * 1000),
-    });
-    if (
-      replayConsistent(
-        settled.sandbox_run_id,
-        settled.realized_pnl,
-        settled.return_pct,
-      )
-    ) {
-      results.push(settled);
-    }
-  }
-  return results;
 }
 
 /** 驗證 BattleResult 必填欄位齊全 */

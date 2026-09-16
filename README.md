@@ -74,7 +74,7 @@ npm run build   # 生產建置
 
 ## 成長對照怎麼驗
 
-1. 清掉本機 `localStorage` 的 `ai-tycoon-battle-wall`（或無痕視窗）。
+1. 無痕視窗，或清掉 `localStorage` 的 `ai-tycoon-battle-wall-v2`（舊 key `ai-tycoon-battle-wall` 不讀、不遷移）。
 2. 首屏戰績牆應為空態：「戰績牆還是空的…」
 3. 出征一次 → 歸來有戰報，牆上一筆，文案 G0（尚不能對照）。
 4. 再出征一次 → 歸來六欄下方出現「兩次對照」：上次／這次的 `realized_pnl`、`return_pct`、`max_drawdown`、`trade_count`，以及三欄 delta。大廳戰績牆頂可看到同一對照。
