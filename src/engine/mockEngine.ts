@@ -14,7 +14,6 @@ import type {
 } from '../types/battle';
 import {
   EMPIRE_ID,
-  PLANNED_DURATION_SEC,
   WOLF_PERSONA,
 } from '../data/wolf';
 
